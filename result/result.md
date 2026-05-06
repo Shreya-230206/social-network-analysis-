@@ -16,3 +16,10 @@ The output shows the most influential bridge nodes and detected communities.
 - Node **107** has highest betweenness → strongest bridge  
 - Nodes **1684** and **3437** connect different communities  
 - **16 communities** detected → strong clustering in network  
+## Network Visualization
+
+### Static Graph
+![Network Graph](interactive_graph.png)
+
+### Interactive Graph
+[Click here to explore](images/interactive_graph.html)
