@@ -101,7 +101,7 @@ Output:
 ## How to Run
 1. Clone the repository:
 ``` bash
-git clone <your-repo-link>
+git clone https://github.com/Shreya-230206/social-network-analysis-
 cd social-network-analysis
 ```
 2. Install dependencies:
