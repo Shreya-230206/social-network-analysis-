@@ -22,4 +22,4 @@ The output shows the most influential bridge nodes and detected communities.
 ![Network Graph](interactive_graph.png)
 
 ### Interactive Graph
-[Click here to explore](images/interactive_graph.html)
+[Click here to explore]([images/interactive_graph.html](https://your-username.github.io/social-network-analysis/images/interactive_graph.html))
