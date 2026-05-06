@@ -1,27 +1,33 @@
-import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
-# Load dataset
-df = pd.read_csv("data/network.csv")
-
-# Create graph
-G = nx.from_pandas_edgelist(df, 'source', 'target')
+# -------------------------
+# Load Facebook dataset
+# -------------------------
+G = nx.read_edgelist("data/facebook.txt")
 
 print("\n--- Basic Info ---")
-print("Number of nodes:", G.number_of_nodes())
-print("Number of edges:", G.number_of_edges())
+print("Nodes:", G.number_of_nodes())
+print("Edges:", G.number_of_edges())
 
 # -------------------------
 # Centrality Measures
 # -------------------------
-degree_centrality = nx.degree_centrality(G)
-betweenness_centrality = nx.betweenness_centrality(G)
+degree = nx.degree_centrality(G)
+betweenness = nx.betweenness_centrality(G)
 
-print("\n--- Top Influential Nodes (Degree Centrality) ---")
-top_nodes = sorted(degree_centrality.items(), key=lambda x: x[1], reverse=True)[:5]
-for node, score in top_nodes:
-    print(f"{node}: {score:.3f}")
+# Compare top nodes
+top_degree = sorted(degree.items(), key=lambda x: x[1], reverse=True)[:5]
+top_between = sorted(betweenness.items(), key=lambda x: x[1], reverse=True)[:5]
+
+print("\nTop Degree Centrality Nodes:")
+for n, v in top_degree:
+    print(n, round(v, 4))
+
+print("\nTop Betweenness Centrality Nodes:")
+for n, v in top_between:
+    print(n, round(v, 4))
 
 # -------------------------
 # Community Detection
@@ -29,27 +35,52 @@ for node, score in top_nodes:
 from networkx.algorithms import community
 
 communities = list(community.greedy_modularity_communities(G))
-
-print("\n--- Communities Detected ---")
-for i, comm in enumerate(communities):
-    print(f"Community {i+1}: {list(comm)}")
+print("\nCommunities Found:", len(communities))
 
 # -------------------------
-# Visualization
+# Plotly Visualization
 # -------------------------
-plt.figure(figsize=(8,6))
 pos = nx.spring_layout(G, seed=42)
 
-# Assign colors to communities
-color_map = {}
-for i, comm in enumerate(communities):
-    for node in comm:
-        color_map[node] = i
+edge_x = []
+edge_y = []
 
-node_colors = [color_map[node] for node in G.nodes()]
+for edge in G.edges():
+    x0, y0 = pos[edge[0]]
+    x1, y1 = pos[edge[1]]
+    edge_x += [x0, x1, None]
+    edge_y += [y0, y1, None]
 
-nx.draw(G, pos, with_labels=True, node_color=node_colors, node_size=700)
+edge_trace = go.Scatter(
+    x=edge_x, y=edge_y,
+    line=dict(width=0.5),
+    hoverinfo='none',
+    mode='lines'
+)
 
-plt.title("Social Network Graph with Communities")
-plt.savefig("images/graph.png")
-plt.show()
+node_x = []
+node_y = []
+node_text = []
+
+for node in G.nodes():
+    x, y = pos[node]
+    node_x.append(x)
+    node_y.append(y)
+    node_text.append(f"Node {node}<br>Degree: {degree[node]:.4f}")
+
+node_trace = go.Scatter(
+    x=node_x, y=node_y,
+    mode='markers',
+    hoverinfo='text',
+    text=node_text,
+    marker=dict(size=6)
+)
+
+fig = go.Figure(data=[edge_trace, node_trace],
+                layout=go.Layout(
+                    title="Interactive Social Network Graph",
+                    showlegend=False
+                ))
+
+fig.write_html("images/interactive_graph.html")
+fig.show()
